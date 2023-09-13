@@ -85,7 +85,7 @@ def make_nx_tree(g: nx.Graph, layers, tree, prev, ans):
 
 
 if __name__ == "__main__":
-    questions, students = parse_file("lab1\students.csv")
+    questions, students = parse_file("lab1/students.csv")
     binary_tree = simple_binary_tree(students)
     G = nx.Graph()
     id = [0]
@@ -96,8 +96,10 @@ if __name__ == "__main__":
     # print(labels)
     # pos = nx.spring_layout(G, seed=3113794652)
     # nx.draw(G, with_labels=True)
-    plt.figure(figsize=(50,6))
+    plt.figure(figsize=(50,10))
     pos = hierarchy_pos(G, 0, width=3)
-    nx.draw(G, pos=pos)
-    nx.draw_networkx_labels(G, pos, labels, font_size=6, font_color="black")
+    nx.draw(G, pos=pos, edge_color="red")
+    labels_output = nx.draw_networkx_labels(G, pos, labels, font_size=6, font_color="black")
+    for _, t in labels_output.items():
+        t.set_rotation('vertical')
     plt.show()
