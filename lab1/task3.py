@@ -87,7 +87,7 @@ def make_nx_tree(g: nx.Graph, layers, tree, prev, ans):
 if __name__ == "__main__":
     questions, students = parse_file("lab1/students.csv")
     binary_tree = simple_binary_tree(students)
-    G = nx.Graph()
+    G = nx.DiGraph()
     id = [0]
     labels = {0: questions[0]}
     make_nx_tree(G, questions[1:], binary_tree[0], 0, "да")
