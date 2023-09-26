@@ -1,29 +1,62 @@
 def parse_file(filename: str):
-    file = list(map(lambda x: x.strip().split(","), 
-                    open(filename, encoding="UTF-8").readlines()))
+    file = [line.strip().split(',')
+            for line
+            in open(filename, encoding="UTF-8").readlines()]
     questions = file[0][1:]
-    students = [(line[0], [1 if ans == "да" else 0 for ans in line[1:]]) for line in file[1:]]
+    students = [(line[0], [ans == 'да' for ans in line[1:]])
+                for line
+                in file[1:]]
     return questions, students
 
-
-def simple_binary_tree(students: list):
+def create_btree(students: list):
     if len(students) == 0:
-        return ("Таких людей нет",)
+        return None
     if len(students) == 1:
-        return (students[0][0],)
+        return students[0][0]
     else:
-        return (simple_binary_tree([(student[0], student[1][1:]) for student in students if student[1][0]]), 
-                simple_binary_tree([(student[0], student[1][1:]) for student in students if not student[1][0]]))
+        left = []
+        right = []
+        for student in students:
+            if student[1].pop(0):
+                left.append(student)
+            else:
+                right.append(student)
+        return (create_btree(left), create_btree(right))
+
+
+def ask(question):
+    user_answer = input(question + ": ")
+    if user_answer in ('да', 'Да', 'д', 'Д'):
+        return True
+    if user_answer in ('нет', 'Нет', 'н', 'Н'):
+        return False
+    return ask(question) # wrong answer, ask again
+
+
+def print_btree(btree, layer=0):
+    if btree is None:
+        print('--' * layer + 'None')
+        return
+    if type(btree) == str:
+        print('--' * layer + btree)
+        return
+    print('--' * layer + 'True: ')
+    print_btree(btree[0], layer=layer+1)
+    print('--' * layer + 'False: ')
+    print_btree(btree[1], layer=layer+1)
 
 
 if __name__ == "__main__":
-    questions, students = parse_file("lab1\students.csv")
-    binary_tree = simple_binary_tree(students)
-    for e in range(len(questions)):
-        if input(questions[e] + " ") == "да":
-            binary_tree = binary_tree[0]
-        else:
-            binary_tree = binary_tree[1]
-        if len(binary_tree) == 1:
-            print(binary_tree[0])
+    questions, students = parse_file("lab1/students.csv")
+    btree = create_btree(students)
+    for question in questions:
+        # print_btree(btree)
+        btree = btree[0 if ask(question) else 1]
+
+        if btree is None:
+            print('Нет такого человека')
+            break
+
+        if type(btree) == str:
+            print(btree)
             break

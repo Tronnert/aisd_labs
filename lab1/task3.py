@@ -1,7 +1,7 @@
 import matplotlib.pyplot as plt
 import networkx as nx
 import random
-from task2 import parse_file, simple_binary_tree
+from task2 import parse_file, create_btree
 
 
 def hierarchy_pos(G, root=None, width=1., vert_gap=0.2, vert_loc=0, xcenter=0.5):
@@ -70,28 +70,31 @@ def hierarchy_pos(G, root=None, width=1., vert_gap=0.2, vert_loc=0, xcenter=0.5)
     return _hierarchy_pos(G, root, width, vert_gap, vert_loc, xcenter)
 
 
-def make_nx_tree(g: nx.Graph, layers, tree, prev, ans):
-    if len(tree) == 1:
-        id[0] += 1
-        labels[id[0]] = f"{ans}\n{tree[0]}"
-        g.add_edge(prev, id[0])
-    else:
-        id[0] += 1
-        labels[id[0]] = f"{ans}\n{layers[0]}"
-        g.add_edge(prev, id[0])
-        cur_id = id[0]
-        make_nx_tree(g, layers[1:], tree[0], cur_id, "да")
-        make_nx_tree(g, layers[1:], tree[1], cur_id, "нет")
+def make_nx_tree(g: nx.Graph, layers, btree, prev_id, ans):
+    id[0] += 1
+    g.add_edge(prev_id, id[0])
+    edge_labels[(prev_id, id[0])] = ans
+    if btree is None:
+        labels[id[0]] = f"Нет такого человека"
+        return
+    if type(btree) == str:
+        labels[id[0]] = f"{btree}"
+        return
+    labels[id[0]] = f"{layers[0]}"
+    cur_id = id[0]
+    make_nx_tree(g, layers[1:], btree[0], cur_id, "да")
+    make_nx_tree(g, layers[1:], btree[1], cur_id, "нет")
 
 
 if __name__ == "__main__":
     questions, students = parse_file("lab1/students.csv")
-    binary_tree = simple_binary_tree(students)
+    btree = create_btree(students)
     G = nx.DiGraph()
     id = [0]
+    edge_labels = {}
     labels = {0: questions[0]}
-    make_nx_tree(G, questions[1:], binary_tree[0], 0, "да")
-    make_nx_tree(G, questions[1:], binary_tree[1], 0, "нет")
+    make_nx_tree(G, questions[1:], btree[0], 0, "да")
+    make_nx_tree(G, questions[1:], btree[1], 0, "нет")
     # print(G.edges)
     # print(labels)
     # pos = nx.spring_layout(G, seed=3113794652)
@@ -99,6 +102,7 @@ if __name__ == "__main__":
     plt.figure(figsize=(50,10))
     pos = hierarchy_pos(G, 0, width=3)
     nx.draw(G, pos=pos, edge_color="red")
+    nx.draw_networkx_edge_labels(G, pos, edge_labels, font_color='black')
     labels_output = nx.draw_networkx_labels(G, pos, labels, font_size=6, font_color="black")
     for _, t in labels_output.items():
         t.set_rotation('vertical')
