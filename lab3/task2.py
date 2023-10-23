@@ -87,3 +87,4 @@ print()
 print(*test(1, 100, 10, heap_sort), sep="\n")
 print()
 print(*test(1, 100, 10, merge_sort), sep="\n")
+
